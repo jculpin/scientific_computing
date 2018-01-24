@@ -1,6 +1,13 @@
 #include <iostream>
 #include <cmath>
-
+/* Guide to Scientific Computing in C++
+ * Chapter 1 Exercise 1.3
+ * Write code that declares two vectors as arrays of double precision 
+ * floating point numbers of length three and assigns values to each of 
+ * these entries.  Extend the code so that it calculates the scalar 
+ * (dot) product of these vectors and prints it to screen.  Finally, 
+ * extend the code so that it prints the Euclidean norm of both vectors
+ * to the screen */
 int main()
 {
 

@@ -1,5 +1,10 @@
 #include <iostream>
 #include <string>
+/* Guide to Scientific Computing in C++
+ * Chapter 1 Exercise 1.5
+ * Write code that invites the user to input seperately strings that 
+ * store their given name and their family name.  Print the user's full 
+ * name to screen */
 
 int main()
 {
