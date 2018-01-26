@@ -5,8 +5,8 @@
 
 int main ()
 {
-    //float x[100];
-    float x_next = 0, x_prev = 0;
+    //double x[100];
+    double x_next = 0, x_prev = 0;
     //x[0] = 0;
     // Use Newton-Raphson to solve e^x + x^3 - 5 = 0
     //for (int i=0; i<100; i++)

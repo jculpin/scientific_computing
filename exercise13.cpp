@@ -21,7 +21,7 @@ int main()
     }
     std::cout << "The scalar product is :" << scalar_product << "\n";
     
-    float euclidean_norm;
+    double euclidean_norm;
     scalar_product = 0;
     for(int i=0; i<3; i++)
     {
