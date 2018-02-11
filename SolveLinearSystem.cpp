@@ -3,69 +3,83 @@
 #include <cassert>
 // Module to solve linear system Ax = b for 3X3 matrix A
 
-double CalculateDeterminant (double** A, int size);
-double** MatrixOfMinors (double** A, int size);
-void MatrixOfCofactors (double** A, int size);
-double** CalculateAdjugate(double** A, int size);
 double** InverseMatrix(double** A, int size);
-double** Multiply(double x,  double** A, int rowsA, int colsA);
-// Multiply two matrices
+double** CalculateAdjugate(double** A, int size);
+void MatrixOfCofactors (double** A, int size);
+double** MatrixOfMinors (double** A, int size);
+double CalculateDeterminant (double** A, int size);
 double** Multiply(double** A, double** B, 
                   int rowsA, int colsA,
                   int rowsB, int colsB);
+double** Multiply(double x,  double** A, int rowsA, int colsA);
+double* Multiply(double** A, double*B,
+                int rowsA, int colsA, int rowsB);
 void printMatrix(double** A, int size); 
+void printVector(double* A, int size); 
                  
-double** Multiply(double** A, double** B,
-                  int rowsA, int colsA,
-                  int rowsB, int colsB)
+int main (int argc, char* argv[])
 {
-    assert(colsA == rowsB);
-     
-    double** mult = new double* [colsA];
-    for(int i=0; i<rowsA; i++)
+    //  Test on a 3X3 matrix
+    double** X = new double* [3];
+    for(int loop=0; loop < 3; loop++)
     {
-        mult[i] = new double[colsB];
+        X[loop] = new double[3];
     }
+    // Set up the matrix values
+    X[0][0] = 2;
+    X[0][1] = 1;
+    X[0][2] = 3;
+    X[1][0] = 2;
+    X[1][1] = -1;
+    X[1][2] = 1;
+    X[2][0] = 5;
+    X[2][1] = -4;
+    X[2][2] = -6;
+    // Create a vector and set the values
+    double* u = new double [3];
+    u[0] = 7.0;
+    u[1] = -3.0;
+    u[2] = 10.0;
     
-    for(int i=0; i<rowsA; i++)
+    std::cout << "Matrix X: \n";
+    printMatrix(X, 3);
+    
+    // Create a matrix to store the inverse
+    double** Xinv = new double* [3];
+    for(int loop=0; loop < 3; loop++)
     {
-        for(int j=0; j<colsB; j++)
-        {
-            {
-                mult[i][j] = 0.0;
-                for(int loop=0; loop<colsA; loop++)
-                {
-                    mult[i][j] += A[i][loop] * B[loop][j];
-                }
-            }
-        }            
+        Xinv[loop] = new double[3];
     }
-    return mult;
-                     
-}
-                  
-double** Multiply(double x, double** A, int rowsA, int colsA)
-{
+    // Calulate the inverse
+    Xinv = InverseMatrix(X, 3);
+    std::cout << "Inverse is:\n";
+    printMatrix(Xinv, 3);
+    
+    // Create a new matrix to test that the inverse is correct
+    //  Should get the identity matrix when multiplied by X
+    double** test = new double* [3];
+    for(int loop=0; loop < 3; loop++)
+    {
+        test[loop] = new double[3];
+    }
+    test = Multiply(X, Xinv, 3, 3, 3, 3);
+    std::cout << "Check: " << "\n";
+    printMatrix(test, 3);
 
-    double** mult = new double* [rowsA];
-    for(int i=0; i<rowsA; i++)
-    {
-        mult[i] = new double[colsA];
-    }
+    // Now solve the system
+    // Create a new matrix to store the answer
+    double* answer = new double [3];
+    answer = Multiply(Xinv, u, 3, 3, 3);
     
-    for(int i=0; i<rowsA; i++)
-    {
-        for(int j=0; j<colsA; j++)
-        {
-            mult[i][j] = A[i][j] * x;
-        }
-    }
+    std::cout << "The answer is: \n";
+    printVector(answer, 3);
     
-    return mult;
+    return 0;
 }
-
+                 
 double** InverseMatrix(double** A, int size)
 {
+    // Calculate the inverse of a matrix of given size
     double** Inv = new double* [size];
     for(int loop=0; loop < size; loop++)
     {
@@ -73,10 +87,13 @@ double** InverseMatrix(double** A, int size)
     }    
 
     Inv = MatrixOfMinors(A, size);
+    std::cout << "Matrix of Minors is:\n";
     printMatrix(Inv, 3);
     MatrixOfCofactors(Inv, size);
+    std::cout << "Matrix of Cofactors is:\n";
     printMatrix(Inv, 3);
     Inv = CalculateAdjugate(Inv, size);
+    std::cout << "Adjugate is:\n";
     printMatrix(Inv, 3);
     double det = CalculateDeterminant(A, size);
     Inv = Multiply(1.0 / det, Inv, size, size);
@@ -86,6 +103,7 @@ double** InverseMatrix(double** A, int size)
 
 double** CalculateAdjugate(double** A, int size)
 {
+    // Calculate the adjugate i.e the transpose
     double** Adj = new double* [size];
     for(int loop=0; loop < size; loop++)
     {
@@ -117,6 +135,9 @@ void MatrixOfCofactors(double** A, int size)
 
 double** MatrixOfMinors (double** A, int size)
 {
+    // For each element of the matrix, ignore the values in the current 
+    // row and column and calculate the determinant of the remaining
+    // values
     double** MoM = new double* [size];
     for(int loop=0; loop < size; loop++)
     {
@@ -156,6 +177,7 @@ double** MatrixOfMinors (double** A, int size)
 
 double CalculateDeterminant (double** A, int size)
 {
+    // Calculate the determinant using a recursive functiom
     double det = 0;
     if(size == 1)
     {
@@ -189,72 +211,78 @@ double CalculateDeterminant (double** A, int size)
     return det;
 }
 
-int main (int argc, char* argv[])
+double** Multiply(double** A, double** B,
+                  int rowsA, int colsA,
+                  int rowsB, int colsB)
 {
-    //  Test on a 3X3 matrix
-    double** X = new double* [3];
-    for(int loop=0; loop < 3; loop++)
+    // Multiply two matrices
+    assert(colsA == rowsB);
+     
+    double** mult = new double* [colsA];
+    for(int i=0; i<rowsA; i++)
     {
-        X[loop] = new double[3];
-    }
-    X[0][0] = 2;
-    X[0][1] = 1;
-    X[0][2] = 3;
-    X[1][0] = 2;
-    X[1][1] = -1;
-    X[1][2] = 1;
-    X[2][0] = 5;
-    X[2][1] = -4;
-    X[2][2] = -6;
-    
-    std::cout << "Determinant X = \n";
-    for(int i = 0; i<3; i++)
-    {
-        for(int j = 0; j< 3; j++)
-        {
-            std::cout << X[i][j] << " " ;
-        }
-        std::cout << "\n";
+        mult[i] = new double[colsB];
     }
     
-    double** Xinv = new double* [3];
-    for(int loop=0; loop < 3; loop++)
+    for(int i=0; i<rowsA; i++)
     {
-        Xinv[loop] = new double[3];
-    }
-    Xinv = InverseMatrix(X, 3);
-    std::cout << "Inverse = \n";
-    for(int i = 0; i<3; i++)
-    {
-        for(int j = 0; j< 3; j++)
+        for(int j=0; j<colsB; j++)
         {
-            std::cout << Xinv[i][j] << " " ;
-        }
-        std::cout << "\n";
+            {
+                mult[i][j] = 0.0;
+                for(int loop=0; loop<colsA; loop++)
+                {
+                    mult[i][j] += A[i][loop] * B[loop][j];
+                }
+            }
+        }            
+    }
+    return mult;
+                     
+}
+                  
+double** Multiply(double x, double** A, int rowsA, int colsA)
+{
+    // Multiply a scalar by a matrix
+    double** mult = new double* [rowsA];
+    for(int i=0; i<rowsA; i++)
+    {
+        mult[i] = new double[colsA];
     }
     
-    double** test = new double* [3];
-    for(int loop=0; loop < 3; loop++)
+    for(int i=0; i<rowsA; i++)
     {
-        test[loop] = new double[3];
-    }
-    test = Multiply(X, Xinv, 3, 3, 3, 3);
-    std::cout << "Check = " << "\n";
-    for(int i = 0; i<3; i++)
-    {
-        for(int j = 0; j< 3; j++)
+        for(int j=0; j<colsA; j++)
         {
-            std::cout << test[i][j] << " " ;
+            mult[i][j] = A[i][j] * x;
         }
-        std::cout << "\n";
     }
+    
+    return mult;
+}
 
-    return 0;
+double* Multiply(double** A, double*B,
+                int rowsA, int colsA, int rowsB)
+{
+    // Multiply a matrix and a vector
+    assert (colsA == rowsB);
+    
+    double* mult = new double[rowsB];
+    for(int i=0; i<rowsA; i++)
+    {
+        mult[i] = 0.0;
+        for(int loop=0; loop<colsA; loop++)
+        {
+            mult[i] += A[i][loop] * B[loop];
+        }
+    }
+    
+    return mult;
 }
 
 void printMatrix(double** A, int size)
 {
-    std::cout << "The matrix is \n";
+    // Print out a given matrix
     for(int rows=0; rows < size; rows++)
     {
         for(int cols=0; cols < size; cols++)
@@ -264,4 +292,13 @@ void printMatrix(double** A, int size)
         std::cout << "\n";
     }
     std::cout << "\n";
+}
+
+void printVector(double* A, int size)
+{
+    // Print out a given vector
+    for(int rows=0; rows<size; rows++)
+    {
+        std::cout << A[rows] << "\n";
+    }
 }
