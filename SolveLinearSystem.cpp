@@ -74,6 +74,25 @@ int main (int argc, char* argv[])
     std::cout << "The answer is: \n";
     printVector(answer, 3);
     
+    // Tidy up
+    for(int i=0; i<3; i++)
+    {
+        // delete vectors u and answer
+        delete[] u;
+        delete[] answer;
+    }
+    
+    for(int i=0; i<3; i++)
+    {
+        // delete matrices test, Xinv and X
+        delete[] X[i];
+        delete[] Xinv[i];
+        delete[] test[i];
+    }
+    delete[] X;
+    delete[] Xinv;
+    delete[] test;
+        
     return 0;
 }
                  
@@ -171,6 +190,13 @@ double** MatrixOfMinors (double** A, int size)
             }
         }
     }
+    
+    // Tidy up
+    for(int i=0; i<size - 1; i++)
+    {
+        delete[] Ahat[i];
+    }
+    delete[] Ahat;
         
     return MoM;
 }
@@ -207,7 +233,14 @@ double CalculateDeterminant (double** A, int size)
             // now calculate the determinant value
             det += pow(-1, loop) * A[0][loop] * CalculateDeterminant(Ahat, size - 1);
         }
+        // Tidy up
+        for(int i=0; i<size - 1; i++)
+        {
+            delete[] Ahat[i];
+        }
+        delete[] Ahat;
     }
+    
     return det;
 }
 
@@ -278,6 +311,7 @@ double* Multiply(double** A, double*B,
     }
     
     return mult;
+
 }
 
 void printMatrix(double** A, int size)
