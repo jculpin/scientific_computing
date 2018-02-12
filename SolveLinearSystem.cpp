@@ -4,7 +4,7 @@
 // Module to solve linear system Ax = b for 3X3 matrix A
 
 double** InverseMatrix(double** A, int size);
-double** CalculateAdjugate(double** A, int size);
+void CalculateAdjugate(double** A, int size);
 void MatrixOfCofactors (double** A, int size);
 double** MatrixOfMinors (double** A, int size);
 double CalculateDeterminant (double** A, int size);
@@ -45,11 +45,7 @@ int main (int argc, char* argv[])
     printMatrix(X, 3);
     
     // Create a matrix to store the inverse
-    double** Xinv = new double* [3];
-    for(int loop=0; loop < 3; loop++)
-    {
-        Xinv[loop] = new double[3];
-    }
+    double** Xinv;
     // Calulate the inverse
     Xinv = InverseMatrix(X, 3);
     std::cout << "Inverse is:\n";
@@ -57,30 +53,23 @@ int main (int argc, char* argv[])
     
     // Create a new matrix to test that the inverse is correct
     //  Should get the identity matrix when multiplied by X
-    double** test = new double* [3];
-    for(int loop=0; loop < 3; loop++)
-    {
-        test[loop] = new double[3];
-    }
+    double** test;
     test = Multiply(X, Xinv, 3, 3, 3, 3);
     std::cout << "Check: " << "\n";
     printMatrix(test, 3);
 
     // Now solve the system
     // Create a new matrix to store the answer
-    double* answer = new double [3];
+    double* answer;
     answer = Multiply(Xinv, u, 3, 3, 3);
     
     std::cout << "The answer is: \n";
     printVector(answer, 3);
     
     // Tidy up
-    for(int i=0; i<3; i++)
-    {
-        // delete vectors u and answer
-        delete[] u;
-        delete[] answer;
-    }
+    // delete vectors u and answer
+    delete[] u;
+    delete[] answer;
     
     for(int i=0; i<3; i++)
     {
@@ -99,19 +88,14 @@ int main (int argc, char* argv[])
 double** InverseMatrix(double** A, int size)
 {
     // Calculate the inverse of a matrix of given size
-    double** Inv = new double* [size];
-    for(int loop=0; loop < size; loop++)
-    {
-        Inv[loop] = new double[size];
-    }    
-
+    double** Inv;
     Inv = MatrixOfMinors(A, size);
     std::cout << "Matrix of Minors is:\n";
     printMatrix(Inv, 3);
     MatrixOfCofactors(Inv, size);
     std::cout << "Matrix of Cofactors is:\n";
     printMatrix(Inv, 3);
-    Inv = CalculateAdjugate(Inv, size);
+    CalculateAdjugate(Inv, size);
     std::cout << "Adjugate is:\n";
     printMatrix(Inv, 3);
     double det = CalculateDeterminant(A, size);
@@ -120,7 +104,7 @@ double** InverseMatrix(double** A, int size)
     return Inv;
 }
 
-double** CalculateAdjugate(double** A, int size)
+void CalculateAdjugate(double** A, int size)
 {
     // Calculate the adjugate i.e the transpose
     double** Adj = new double* [size];
@@ -128,16 +112,31 @@ double** CalculateAdjugate(double** A, int size)
     {
         Adj[loop] = new double[size];
     }    
-
+    // Save a copy of A 
     for (int rows=0; rows < size; rows++)
     {
         for(int cols=0; cols < size; cols++)
         {
-            Adj[rows][cols] = A[cols][rows];
+            Adj[rows][cols] = A[rows][cols];
+        }
+    }
+    // Now swap rows and columns
+    for (int rows=0; rows < size; rows++)
+    {
+        for(int cols=0; cols < size; cols++)
+        {
+            A[cols][rows] = Adj[rows][cols];
         }
     }
     
-    return Adj;
+    // tidy up
+    for(int i=0; i<size; i++)
+    {
+        delete[] Adj[i];
+    }
+    delete[] Adj;
+    
+    //return Adj;
 }
 
 void MatrixOfCofactors(double** A, int size)
