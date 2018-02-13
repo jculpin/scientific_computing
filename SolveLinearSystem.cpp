@@ -3,17 +3,19 @@
 #include <cassert>
 // Module to solve linear system Ax = b for 3X3 matrix A
 
-double** InverseMatrix(double** A, int size);
+double* SolveLinearSystem(double** A, double* u, int size);
+void InverseMatrix(double** A, double** B, int size);
 void CalculateAdjugate(double** A, int size);
 void MatrixOfCofactors (double** A, int size);
-double** MatrixOfMinors (double** A, int size);
+void MatrixOfMinors (double** A, int size);
 double CalculateDeterminant (double** A, int size);
-double** Multiply(double** A, double** B, 
-                  int rowsA, int colsA,
-                  int rowsB, int colsB);
-double** Multiply(double x,  double** A, int rowsA, int colsA);
-double* Multiply(double** A, double*B,
-                int rowsA, int colsA, int rowsB);
+void Multiply(double** A, double** B, double** C, 
+              int rowsA, int colsA,
+              int rowsB, int colsB);
+void Multiply(double x,  double** A, double** B,
+              int rowsA, int colsA);
+void Multiply(double** A, double* B, double* C,
+              int rowsA, int colsA, int rowsB);
 void printMatrix(double** A, int size); 
 void printVector(double* A, int size); 
                  
@@ -44,24 +46,10 @@ int main (int argc, char* argv[])
     std::cout << "Matrix X: \n";
     printMatrix(X, 3);
     
-    // Create a matrix to store the inverse
-    double** Xinv;
-    // Calulate the inverse
-    Xinv = InverseMatrix(X, 3);
-    std::cout << "Inverse is:\n";
-    printMatrix(Xinv, 3);
-    
-    // Create a new matrix to test that the inverse is correct
-    //  Should get the identity matrix when multiplied by X
-    double** test;
-    test = Multiply(X, Xinv, 3, 3, 3, 3);
-    std::cout << "Check: " << "\n";
-    printMatrix(test, 3);
-
     // Now solve the system
     // Create a new matrix to store the answer
     double* answer;
-    answer = Multiply(Xinv, u, 3, 3, 3);
+    answer = SolveLinearSystem(X, u, 3);
     
     std::cout << "The answer is: \n";
     printVector(answer, 3);
@@ -73,35 +61,73 @@ int main (int argc, char* argv[])
     
     for(int i=0; i<3; i++)
     {
-        // delete matrices test, Xinv and X
         delete[] X[i];
-        delete[] Xinv[i];
-        delete[] test[i];
     }
     delete[] X;
-    delete[] Xinv;
-    delete[] test;
         
     return 0;
 }
-                 
-double** InverseMatrix(double** A, int size)
+
+double* SolveLinearSystem(double** A, double* u, int size)
+{
+    double** solve = new double* [3];
+    for(int loop=0; loop < 3; loop++)
+    {
+        solve[loop] = new double[3];
+    }
+    
+    InverseMatrix(A, solve, size);
+    std::cout << "Solve matrix is \n";
+    printMatrix(solve,3);
+    double* answer = new double[size];
+    Multiply(solve, u, answer, 3, 3, 3);
+    
+    for(int i=0; i<size; i++)
+    {
+        delete[] solve[i];
+    }
+    delete[] solve;
+    
+    return answer;
+}                 
+
+void InverseMatrix(double** A, double** B, int size)
 {
     // Calculate the inverse of a matrix of given size
-    double** Inv;
-    Inv = MatrixOfMinors(A, size);
-    std::cout << "Matrix of Minors is:\n";
-    printMatrix(Inv, 3);
-    MatrixOfCofactors(Inv, size);
-    std::cout << "Matrix of Cofactors is:\n";
-    printMatrix(Inv, 3);
-    CalculateAdjugate(Inv, size);
-    std::cout << "Adjugate is:\n";
-    printMatrix(Inv, 3);
     double det = CalculateDeterminant(A, size);
-    Inv = Multiply(1.0 / det, Inv, size, size);
-     
-    return Inv;
+    double** temp = new double* [3];
+    for(int loop=0; loop < 3; loop++)
+    {
+        temp[loop] = new double[3];
+    }
+    // Copy values from A to temp
+    for(int i=0; i<size;i++)
+    {
+        for(int j=0; j<size;j++)
+        {
+            temp[i][j] = A[i][j];
+        }
+    }
+
+    MatrixOfMinors(temp, size);
+    std::cout << "Matrix of Minors is:\n";
+    printMatrix(temp, 3);
+    MatrixOfCofactors(temp, size);
+    std::cout << "Matrix of Cofactors is:\n";
+    printMatrix(temp, 3);
+    CalculateAdjugate(temp, size);
+    std::cout << "Adjugate is:\n";
+    printMatrix(temp, 3);
+    Multiply(1.0 / det, temp, B, size, size);
+    std::cout << "Inverse is \n";
+    printMatrix(B,3); 
+    
+    // tidy up
+    for(int loop=0; loop < size; loop++)
+    {
+        delete[] temp[loop];
+    }
+    delete[] temp;
 }
 
 void CalculateAdjugate(double** A, int size)
@@ -135,8 +161,6 @@ void CalculateAdjugate(double** A, int size)
         delete[] Adj[i];
     }
     delete[] Adj;
-    
-    //return Adj;
 }
 
 void MatrixOfCofactors(double** A, int size)
@@ -151,7 +175,7 @@ void MatrixOfCofactors(double** A, int size)
     }
 }
 
-double** MatrixOfMinors (double** A, int size)
+void MatrixOfMinors (double** A, int size)
 {
     // For each element of the matrix, ignore the values in the current 
     // row and column and calculate the determinant of the remaining
@@ -161,6 +185,15 @@ double** MatrixOfMinors (double** A, int size)
     {
         MoM[loop] = new double[size];
     }    
+    
+    // Save a copy of the matrix A
+    for(int i=0; i<size; i++)
+    {
+        for(int j=0; j<size; j++)
+        {
+            MoM[i][j] = A[i][j];
+        }
+    }
     
     double** Ahat = new double* [size - 1];
     for(int loop=0; loop < size -1; loop++)
@@ -183,9 +216,9 @@ double** MatrixOfMinors (double** A, int size)
                     if(i >= rows) rowElement = i + 1;
                     if(j < cols) colElement = j;
                     if(j >= cols) colElement = j + 1; 
-                    Ahat[i][j] = A[rowElement][colElement];
+                    Ahat[i][j] = MoM[rowElement][colElement];
                 }
-                MoM[rows][cols] = CalculateDeterminant(Ahat, size - 1); 
+                A[rows][cols] = CalculateDeterminant(Ahat, size - 1); 
             }
         }
     }
@@ -195,9 +228,12 @@ double** MatrixOfMinors (double** A, int size)
     {
         delete[] Ahat[i];
     }
+    for(int i=0; i<size; i++)
+    {
+        delete[] MoM[i];
+    }
     delete[] Ahat;
-        
-    return MoM;
+    delete[] MoM;
 }
 
 double CalculateDeterminant (double** A, int size)
@@ -243,74 +279,53 @@ double CalculateDeterminant (double** A, int size)
     return det;
 }
 
-double** Multiply(double** A, double** B,
-                  int rowsA, int colsA,
-                  int rowsB, int colsB)
+void Multiply(double** A, double** B, double** C,
+              int rowsA, int colsA,
+              int rowsB, int colsB)
 {
     // Multiply two matrices
     assert(colsA == rowsB);
-     
-    double** mult = new double* [colsA];
-    for(int i=0; i<rowsA; i++)
-    {
-        mult[i] = new double[colsB];
-    }
-    
+         
     for(int i=0; i<rowsA; i++)
     {
         for(int j=0; j<colsB; j++)
         {
+            C[i][j] = 0.0;
+            for(int loop=0; loop<colsA; loop++)
             {
-                mult[i][j] = 0.0;
-                for(int loop=0; loop<colsA; loop++)
-                {
-                    mult[i][j] += A[i][loop] * B[loop][j];
-                }
+                C[i][j] += A[i][loop] * B[loop][j];
             }
         }            
     }
-    return mult;
-                     
 }
                   
-double** Multiply(double x, double** A, int rowsA, int colsA)
+void Multiply(double x, double** A, double** B, 
+              int rowsA, int colsA)
 {
     // Multiply a scalar by a matrix
-    double** mult = new double* [rowsA];
-    for(int i=0; i<rowsA; i++)
-    {
-        mult[i] = new double[colsA];
-    }
-    
     for(int i=0; i<rowsA; i++)
     {
         for(int j=0; j<colsA; j++)
         {
-            mult[i][j] = A[i][j] * x;
+            B[i][j] = A[i][j] * x;
         }
     }
-    
-    return mult;
 }
 
-double* Multiply(double** A, double*B,
-                int rowsA, int colsA, int rowsB)
+void Multiply(double** A, double*B, double* C,
+              int rowsA, int colsA, int rowsB)
 {
     // Multiply a matrix and a vector
     assert (colsA == rowsB);
     
-    double* mult = new double[rowsB];
     for(int i=0; i<rowsA; i++)
     {
-        mult[i] = 0.0;
+        C[i] = 0.0;
         for(int loop=0; loop<colsA; loop++)
         {
-            mult[i] += A[i][loop] * B[loop];
+            C[i] += A[i][loop] * B[loop];
         }
     }
-    
-    return mult;
-
 }
 
 void printMatrix(double** A, int size)

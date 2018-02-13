@@ -1,7 +1,7 @@
 #include <iostream>
 #include <cassert>
 
-double** Multiply(double** A, double** B, 
+void Multiply(double** A, double** B, double** C,
                   int rowsA, int colsA,
                   int rowsB, int colsB);
                  
@@ -10,10 +10,12 @@ int main(int argc, char* argv[])
     // test function on a 3X3 matrix
     double** X = new double* [3];
     double** Y = new double* [3];
+    double** Z = new double* [3];
     for(int i=0; i<3; i++)
     {
         X[i] = new double[3];
         Y[i] = new double[3];
+        Z[i] = new double[3];
     }
     
     X[0][0] = 1.0;
@@ -35,45 +37,48 @@ int main(int argc, char* argv[])
     Y[2][1] = 8.0;
     Y[2][2] = 4.0;
         
-    double** answ = Multiply(X, Y, 3, 3, 3, 3);
+    Multiply(X, Y, Z, 3, 3, 3, 3);
     
     for(int i=0; i<3; i++)
     {
         for(int j=0; j<3; j++)
         {
-            std::cout << answ[i][j] << "  " ;
+            std::cout << Z[i][j] << "  " ;
         }
         std::cout << "\n";
     }
         
+    // tidy up
+    for(int loop = 0; loop < 3; loop++)
+    {
+        delete[] X[loop];
+        delete[] Y[loop];
+        delete[] Z[loop];
+    }
+    delete[] X;    
+    delete[] Y;
+    delete[] Z;
+    
     return 0;
 }
 
-double** Multiply(double** A, double** B,
+void Multiply(double** A, double** B, double** C,
                   int rowsA, int colsA,
                   int rowsB, int colsB)
 {
     assert(colsA == rowsB);
      
-    double** mult = new double* [colsA];
-    for(int i=0; i<rowsA; i++)
-    {
-        mult[i] = new double[colsB];
-    }
-    
     for(int i=0; i<rowsA; i++)
     {
         for(int j=0; j<colsB; j++)
         {
             {
-                mult[i][j] = 0.0;
+                C[i][j] = 0;
                 for(int loop=0; loop<colsA; loop++)
                 {
-                    mult[i][j] += A[i][loop] * B[loop][j];
+                    C[i][j] += A[i][loop] * B[loop][j];
                 }
             }
         }            
     }
-    return mult;
-                     
 }
