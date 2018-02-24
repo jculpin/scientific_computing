@@ -51,6 +51,9 @@ int main(int argc, char* argv[])
     u[2] = 2.0;
     u[3] = 9.0;
     
+    std::cout << "Test vector is : \n";
+    PrintVector(u, 4);
+    
     double* answer = new double[4];
     SolveLinearSystem(test, u, answer, 4);
     
@@ -78,18 +81,10 @@ void SolveLinearSystem(double** A, double* B, double* C, int size)
         int linetoswap = GetMaximumValue(A, i, size); 
         if (linetoswap != i)
         {
-            std::cout << "Swap lines " << i << " and " << linetoswap << "\n";
             SwapRows(A, B, size, i, linetoswap);
         }
-        std::cout << "Check after swapping\n";
-        PrintMatrix(A, size);
-        PrintVector(B, size);
         ReduceRows(A, B, size, i);
-
     }
-    std::cout << "After Gaussian elimination \n" ;
-    PrintMatrix(A, size);
-    PrintVector(B, size);
     
     // Now do back substitution.  Can easily get last value
     C[size-1] = B[size-1] / A[size-1][size-1];
@@ -122,9 +117,7 @@ void SwapRows(double** A, double* B, int size, int row1, int row2)
     // Multiply the swap matrix with matrix and vector
     Multiply(swap, A, tempA, size, size, size, size);
     Multiply(swap, B, tempU, size, size, size);
-    
-    PrintMatrix(tempA, size);
-    
+        
     // Copy the temp values back to tne matrix and vector
     for(int i=0; i<size;i++)
     {
@@ -157,7 +150,7 @@ int GetMaximumValue(double** A, int row, int size)
             rowNumber = i; 
         }
     }
-    std::cout << "Largest number is: " << largest << "\n";
+
     return rowNumber;
 }
 
@@ -185,17 +178,13 @@ void GenerateSwap(double** A, int size, int row1, int row2)
             }
         }
     }
-    PrintMatrix(A, size);
 }
 
 void ReduceRows(double** A, double* B, int size, int rowNumber)
 {
     for(int i=rowNumber + 1; i<size; i++)
     {
-        std::cout << "Here with  - " << A[i][rowNumber] << " and " << A[rowNumber][rowNumber] << "\n";
         double m = A[i][rowNumber] / A[rowNumber][rowNumber];
-        std::cout << "Row = " << rowNumber << " top = " << A[i][rowNumber] << " bottom = " << A[rowNumber][rowNumber] << "\n";
-        std::cout << "Value of m is: " << m << "\n";
         for(int j=0; j< size; j++)
         {
             if(j< rowNumber)
@@ -209,10 +198,6 @@ void ReduceRows(double** A, double* B, int size, int rowNumber)
         }
         B[i] = B[i] - m * B[rowNumber];
     }
-    std::cout << "Matrix after reduce rows \n";
-    PrintMatrix(A, size); 
-    std::cout << "Vector after reduce rows \n";
-    PrintVector(B, size);
 }
 
 void Multiply(double** A, double** B, double** C,

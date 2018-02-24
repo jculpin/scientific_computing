@@ -28,5 +28,34 @@ int main(int argc, char* argv[])
     std::cout << "Second element of zs = "
               << zs[1] << "\n";
               
+    std::cout << "Real part of z2 = ";
+    std::cout << z2.GetRealPart() << "\n"; 
+    std::cout << "Imaginary part of z2 = ";
+    std::cout << z2.GetImaginaryPart() << "\n";
+             
+    std::cout << "Real part of z3 = ";
+    std::cout << RealPart(z3) << "\n"; 
+    std::cout << "Imaginary part of z3 = ";
+    std::cout << ImaginaryPart(z3) << "\n";
+                 
+    ComplexNumber copy(z2);
+    std::cout << "Copy of z2 " << copy << "\n";
+    
+    ComplexNumber justreal(-12.3);
+    std::cout << "Test real number in complex form = " << justreal << "\n";
+    
+    ComplexNumber conj = z1.CalculateConjugate();
+    std::cout << "Conjugate of z1 = " << conj << "\n";
+    
+    conj.SetConjugate();
+    std::cout << "After setting conj to be it's own conjugate " << conj << "\n";
+    
+    // Create an array of complex numbers
+    ComplexNumber** A = CreateComplexArray();
+    // Delete the array              
+    DeleteComplexArray(A);
+    
     return 0;
 }
+
+

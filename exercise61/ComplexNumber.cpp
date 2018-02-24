@@ -16,6 +16,20 @@ ComplexNumber::ComplexNumber(double x, double y)
     mImaginaryPart = y;
 }
 
+// Constructor to specify a real number in complex form
+ComplexNumber::ComplexNumber(double x)
+{
+    mRealPart = x;
+    mImaginaryPart = 0;
+}
+
+// Copy constructor
+ComplexNumber::ComplexNumber(const ComplexNumber& z)
+{
+    mRealPart = RealPart(z);
+    mImaginaryPart = ImaginaryPart(z);
+}
+
 // Method for computing the modulus of a
 // complex number
 double ComplexNumber::CalculateModulus() const
@@ -31,6 +45,31 @@ double ComplexNumber::CalculateArgument() const
     return atan2(mImaginaryPart, mRealPart);
 }
 
+
+// Return the real part of the complex number
+double ComplexNumber::GetRealPart() const
+{
+    return mRealPart;
+}
+
+// Return imaginary part of complex number
+double ComplexNumber::GetImaginaryPart() const
+{
+    return mImaginaryPart;
+}
+
+// Friend method to return real part
+double RealPart(const ComplexNumber& z) 
+{
+    return z.mRealPart;
+}
+
+// Friend method to return imaginary part
+double ImaginaryPart(const ComplexNumber& z) 
+{
+    return z.mImaginaryPart;
+}
+
 // Method for raising a complex number to the power n
 // using De Moivre'ds theorem - first complex
 // number must be converted to polar form
@@ -44,6 +83,20 @@ ComplexNumber ComplexNumber::CalculatePower(double n) const
     double imag_part = mod_of_result*sin(arg_of_result);
     ComplexNumber z(real_part, imag_part);
     return z;
+}
+
+// Calculate the conjugate x - iy of complex number x + iy
+ComplexNumber ComplexNumber::CalculateConjugate() const
+{
+    ComplexNumber z(GetRealPart(), -GetImaginaryPart());
+    
+    return z;
+}
+
+//Set the complex number to be it's conjugate
+void ComplexNumber::SetConjugate()
+{
+    mImaginaryPart = -mImaginaryPart;
 }
 
 // Overloading the = (assignment) opersator
@@ -97,4 +150,25 @@ std::ostream& operator<<(std::ostream& output, const ComplexNumber& z)
         output << "- " << -z.mImaginaryPart << "i)";
     }
     return output;
+}
+
+// Create a 3X3 array of complex numbers
+ComplexNumber** CreateComplexArray()
+{
+    ComplexNumber** complexArray = new ComplexNumber*[3];
+    for(int i =0; i<3; i++)
+    {
+        complexArray[i] = new ComplexNumber[3];
+    }
+    return complexArray;
+}
+
+// Delete the array
+void DeleteComplexArray(ComplexNumber** A)
+{
+    for(int i=0; i<3; i++)
+    {
+        delete[] A[i];
+    }
+    delete[] A;
 }
