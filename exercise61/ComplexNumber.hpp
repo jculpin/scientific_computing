@@ -24,6 +24,8 @@ public:
     ComplexNumber operator-() const;
     ComplexNumber operator+(const ComplexNumber& z) const;
     ComplexNumber operator-(const ComplexNumber& z) const;
+    ComplexNumber operator*(const ComplexNumber& z) const;
+    ComplexNumber operator*(const double factor) const;
     friend ComplexNumber** CreateComplexArray();
     friend void DeleteComplexArray(ComplexNumber** A);
     friend double RealPart(const ComplexNumber& z);

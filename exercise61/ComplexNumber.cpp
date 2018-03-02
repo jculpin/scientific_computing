@@ -134,6 +134,26 @@ ComplexNumber ComplexNumber::operator-(const ComplexNumber& z) const
     return w;
 }
 
+// Overload the multiplication operator
+ComplexNumber ComplexNumber::operator*(const ComplexNumber& z) const
+{
+    ComplexNumber w;
+    w.mRealPart = mRealPart * z.mRealPart - mImaginaryPart * z.mImaginaryPart;
+    w.mImaginaryPart = mRealPart * z.mImaginaryPart + mImaginaryPart * z.mRealPart;
+    
+    return w;
+}
+
+//Overload the * operator for a scalar
+ComplexNumber ComplexNumber::operator*(const double factor) const
+{
+    ComplexNumber w;
+    w.mRealPart = factor * mRealPart;
+    w.mImaginaryPart = factor * mImaginaryPart;
+    
+    return w;
+}
+
 // Overloading the insertion << operator
 std::ostream& operator<<(std::ostream& output, const ComplexNumber& z)
 {
@@ -152,23 +172,3 @@ std::ostream& operator<<(std::ostream& output, const ComplexNumber& z)
     return output;
 }
 
-// Create a 3X3 array of complex numbers
-ComplexNumber** CreateComplexArray()
-{
-    ComplexNumber** complexArray = new ComplexNumber*[3];
-    for(int i =0; i<3; i++)
-    {
-        complexArray[i] = new ComplexNumber[3];
-    }
-    return complexArray;
-}
-
-// Delete the array
-void DeleteComplexArray(ComplexNumber** A)
-{
-    for(int i=0; i<3; i++)
-    {
-        delete[] A[i];
-    }
-    delete[] A;
-}

@@ -49,12 +49,7 @@ int main(int argc, char* argv[])
     
     conj.SetConjugate();
     std::cout << "After setting conj to be it's own conjugate " << conj << "\n";
-    
-    // Create an array of complex numbers
-    ComplexNumber** A = CreateComplexArray();
-    // Delete the array              
-    DeleteComplexArray(A);
-    
+        
     return 0;
 }
 
